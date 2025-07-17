@@ -58,7 +58,7 @@ mycol <- c('coral1','lightgreen','gold')[geo]
 par(mar=c(0,0,0,0))
 plot(plant.tree2,  tip.color=mycol, cex=0.35, type='fan')
 legend(-130, 190,
-       legend=c("Invasive","Naturalized","Ornamental"),
+       legend=c("Invasive","Watch","Ornamental"),
        fill=c('coral1','gold','lightgreen'),
        col = par("col"), bty = "n", bg = par("bg"), cex = 1, horiz = FALSE, title = ' ')
 
