@@ -10,7 +10,7 @@ library(V.PhyloMaker2)
 
 
 # check base csv for V.PhyloMaker2 functions
-read.csv("data/sample_species_list.csv") %>% head()
+read.csv("data/phylomaker/sample_species_list.csv") %>% head()
 
 # prepare file, use accepted names according to gbif 
 species_phylocsv <- species_status[,c('species_gbif','genus','family')]
@@ -24,8 +24,8 @@ species_phylocsv$family[which(species_status$genus=='Sambucus')] <- 'Adoxaceae'
 species_phylocsv$family[which(species_status$family=='Ehretiaceae')] <- 'Boraginaceae'
 
 # check families against V.PhyloMaker2 backbone
-table(species_phylocsv$family %in% deframe(read.csv("data/family_list_for_V.PhyloMaker2.csv")))
-species_phylocsv$family[!(species_phylocsv$family %in% deframe(read.csv("data/family_list_for_V.PhyloMaker2.csv")))]
+table(species_phylocsv$family %in% deframe(read.csv("data/phylomaker/family_list_for_V.PhyloMaker2.csv")))
+species_phylocsv$family[!(species_phylocsv$family %in% deframe(read.csv("data/phylomaker/family_list_for_V.PhyloMaker2.csv")))]
 
 # remove Cephalotaxaceae
 species_phylocsv <- species_phylocsv[-which(species_phylocsv$family=='Cephalotaxaceae'),]
