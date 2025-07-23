@@ -128,23 +128,6 @@ ggplot(aes(x=origin, fill=status), data=temp1) +
 
 
 
-# IPBES x status
-temp1 <- species_invasive[species_invasive$IPBES_unitofanalysis %in% names(which(table(species_invasive$IPBES_unitofanalysis) > 3)),]
-temp1$IPBES_unitofanalysis <- factor(temp1$IPBES_unitofanalysis, levels=c(names(table(temp1$IPBES_unitofanalysis)[order(table(temp1$IPBES_unitofanalysis), decreasing=T)])))
-temp1$status <- factor(temp1$status, levels=c('casual','naturalized','invasive'))
-
-ggplot(aes(x=IPBES_unitofanalysis, fill=status), data=temp1) +
-  geom_bar(position='dodge', color = "black") +
-  scale_fill_manual(values = col) +
-  xlab('') + ylab('Number of species') +
-  theme_classic() +
-  theme (axis.text.x = element_text(color = "black", size = 12, angle = -45, hjust = 0, vjust =0.5),
-         axis.text.y = element_text(color = "black", size = 12),
-         axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5),
-         legend.title=element_blank(), legend.text = element_text(size=12), legend.position = c(0.8, 0.8))
-
-
-
 # pathway x status
 temp1 <- species_invasive[!is.na(species_invasive$pathway_CBD),]
 temp1$pathway_CBD <- factor(temp1$pathway_CBD, levels=c(names(table(temp1$pathway_CBD)[order(table(temp1$pathway_CBD), decreasing=T)])))

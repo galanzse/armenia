@@ -1,29 +1,50 @@
 
 
-# MAP OF FLORISTICS REGIONS BY OVERLAPPING IN GOOGLE EARTH
+# CREATE AND PLOT MAP OF FLORISTICS REGIONS
 
 
 library(terra)
 library(rnaturalearth)
+library(tidyverse)
+library(readxl)
 
 
-# armenia
-armenia_map <- ne_countries(country='Armenia', scale=10)[1] %>% vect() %>% as.polygons()
+
+# df for plotting: set right names and calculate richness
+df_florreg <- read_excel("data/alien_flora_armenia.xlsx", sheet="floristic regions") %>% dplyr::select(!species)
+df_florreg <- data.frame(region = names(colSums(df_florreg, na.rm=T)), richness = colSums(df_florreg, na.rm=T))
+rownames(df_florreg) <- NULL
+df_florreg$code <- substr(df_florreg$region, 1, 2) %>% as.numeric()
+df_florreg$region <- gsub(" ", "", substr(df_florreg$region, 5, 20))
+
+# armenia borders
+armenia_boder <- ne_countries(country='Armenia', scale=10)[1] %>% vect() %>% as.polygons()
 
 # floristic regions
-floristic_regions <- vect('maps/Floristic regions of Armenia (polygons).kml')
-floristic_regions$Name <- c('Upper Akhurian', 'Shirak', 'Lori', 'Idjevan', 'Aparan', 'Sevan',
-                            'Areguni', 'Yerevan', 'Darelegis', 'North Zangezur', 'South Zangezur', 'Megri')
-# crop and plot
-plot(floristic_regions)
-lines(armenia_map, col='red')
+floreg_polygons <- vect('maps/Floristic regions of Armenia (polygons).kml')
+floreg_polygons$Description <- NULL
+names(floreg_polygons) <- 'region'
+floreg_polygons$code <- df_florreg$code
+floreg_polygons$richness <- df_florreg$richness
 
-# rasterize
-rast1 <- rast('C:/Users/javie/OneDrive/ACADEMICO/proyectos/scleria/data/wc2.1_30s_elev/wc2.1_30s_elev.tif') %>% terra::crop(armenia_map)
-rast1[] <- NA 
 
-rast_flor <- rasterize(x=floristic_regions, y=rast1, fun='min', field='Name', update=T) %>% terra::crop(armenia_map, mask=T)
-plot(rast_flor)
-lines(armenia_map)
+
+# polygons to raster to avoid overlap
+floreg_raster <- rast('C:/Users/javie/OneDrive/ACADEMICO/proyectos/scleria/data/wc2.1_30s_elev/wc2.1_30s_elev.tif') %>% # base map
+  terra::crop(armenia_boder); floreg_raster[] <- NA 
+
+floreg_raster <- rasterize(x=floreg_polygons, y=floreg_raster, fun='min', field='region', update=T) %>% # rasterize
+  terra::crop(armenia_boder, mask=T)
+
+# rasterize does so by the alphabetical order of the categories, so vect and add richness
+floreg_polygons2 <- as.polygons(floreg_raster)
+floreg_polygons2$richness <-  df_florreg$richness[order(df_florreg$region, decreasing=F)]
+  
+
+# plot
+plot(floreg_polygons2, 'richness', col=map.pal('reds', 20), type='continuous', main='Invasive species richness')
+lines(floreg_polygons2, col='black', lwd=2)
+# lines(floreg_polygons, col='orange', lwd=2)
+lines(armenia_boder, col='black', lwd=3)
 
 

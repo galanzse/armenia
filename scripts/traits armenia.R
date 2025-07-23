@@ -3,19 +3,21 @@
 # EXPLORE TRAITS FROM TRY AND SEE WHETHER WE CAN CONSIDER THIS FOR FUTURE ANALYSES
 
 
-source('scripts/2_taxonomic backbone.R')
-
 library(data.table)
 # install.packages("writexl")
 # library(writexl)
 
 
+source('scripts/2_taxonomic backbone.R')
+
+
+
 # import data
 # try_armenia <- fread("data/try data/42782.txt")
 
-# remove long string variables
-try_armenia$Reference <- NULL
-try_armenia$Comment <- NULL
+remove long string variables
+# try_armenia$Reference <- NULL
+# try_armenia$Comment <- NULL
 
 # # remove covariates
 # try_armenia <- try_armenia[!(is.na(try_armenia$TraitID)),]
@@ -44,37 +46,36 @@ vect_NA[order(vect_NA, decreasing=T)]
 
 
 
-# LHS x status: only invasive species
-statusxtraits <- left_join(species_invasive, try_means_wide, by='species')
-colnames(try_means_wide)
-ggplot(aes(x=status, y=log(height_vegetative)), data=statusxtraits) +
-  geom_boxplot()
-ggplot(aes(x=status, y=log(SLA)), data=statusxtraits) +
-  geom_boxplot()
-ggplot(aes(x=status, y=log(seed_mass)), data=statusxtraits) +
-  geom_boxplot()
-
-
-
-# LHS x expanding/watch
-# import invasive and watch species, merge species and traits
+# import invasive and watch species
 invasive_species <- read_excel("data/alien_flora_armenia.xlsx", sheet="Sheet3") %>%
-  dplyr::select(species, family, life_form, life_cycle, growth_form) %>%
-  left_join(try_means_wide)
-invasive_species$status <- 'invasive'
-
+  dplyr::select(species, family, life_form, life_cycle, growth_form, status) 
 watch_species <- read_excel("data/alien_flora_armenia.xlsx", sheet="Sheet2") %>%
   dplyr::select(species, family, life_form, life_cycle, growth_form) %>%
-  subset(!(species %in% invasive_species$species)) %>%
-  left_join(try_means_wide)
+  subset(!(species %in% invasive_species$species))
 watch_species$status <- 'watch'
 
-all_species <- rbind(invasive_species, watch_species)
-ggplot(aes(x=status, y=log(height_vegetative)), data=all_species) +
-  geom_boxplot()
-ggplot(aes(x=status, y=log(SLA)), data=all_species) +
-  geom_boxplot()
-ggplot(aes(x=status, y=log(seed_mass)), data=all_species) +
-  geom_boxplot()
+# merge species and traits
+traits_final <- rbind(invasive_species, watch_species) %>% left_join(try_means_wide)
+table(traits_final$status)
+
+# long format
+traits_final_long <- traits_final %>% pivot_longer(7:26, names_to='trait', values_to='value') %>%
+  subset(trait!='frost_tolerance2') %>%
+  na.omit()
+traits_final_long$status <- factor(traits_final_long$status, levels=c('watch','casual','naturalized','invasive'))
+
+traits_final_long$trait <- factor(traits_final_long$trait,
+                                  levels=c("height_vegetative","height_generative","longevity","frost_tolerance1","drought_tolerance",
+                                           "seed_mass", "propagule_mass","seed_length", "seed_shedding","leaf_length",
+                                           "onset_flowering","length_flowering","end_flowering","leaf_width","leaf_aspect",
+                                           "SLA","LDMC","Nmass","leaf_form"))
+
+# LHS x status: only invasive species
+ggplot(aes(fill=status, y=log(value)), data=traits_final_long) +
+  geom_boxplot() +
+  facet_wrap(.~trait, scales='free', nrow=4) +
+  theme_classic() +
+  theme(legend.position='top', legend.title=element_blank(),
+        axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
 
 
