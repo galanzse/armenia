@@ -17,7 +17,7 @@ species_invasive <- read_excel("data/alien_flora_armenia.xlsx", sheet = "Sheet3"
 species_invasive$status <- factor(species_invasive$status, levels=c('casual','naturalized','invasive'))
 
 # import floristic regions
-floristic_reg <- read_excel("data/alien_flora_armenia.xlsx",  sheet = " floristic regions")
+floristic_reg <- read_excel("data/alien_flora_armenia.xlsx",  sheet = "floristic regions")
 colnames(floristic_reg)[-1] <- c("Upper Akhuryan", "Shirak", "Lori", "Idjevan", "Aparan", "Sevan", "Areguni", "Yerevan", "Darelegis", "N.Zangezur", "S.Zangezur", "Meghri")
 floristic_reg_long <- floristic_reg %>% pivot_longer(!species, names_to = "flor_region", values_to = "count") %>% na.omit()
 

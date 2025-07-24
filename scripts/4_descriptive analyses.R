@@ -129,11 +129,23 @@ ggplot(aes(x=origin, fill=status), data=temp1) +
 
 
 # pathway x status
-temp1 <- species_invasive[!is.na(species_invasive$pathway_CBD),]
-temp1$pathway_CBD <- factor(temp1$pathway_CBD, levels=c(names(table(temp1$pathway_CBD)[order(table(temp1$pathway_CBD), decreasing=T)])))
-temp1$status <- factor(temp1$status, levels=c('casual','naturalized','invasive'))
+pathway_CBD <- read_excel("data/alien_flora_armenia.xlsx", sheet="pathway_CBD")
+pathway_CBD[is.na(pathway_CBD)] <- 0
+colnames(pathway_CBD) <- gsub(" ", "_", colnames(pathway_CBD))
+pathway_CBD <- left_join(species_invasive[,c('species','status')], pathway_CBD)
+pathway_CBD$status <- factor(pathway_CBD$status, levels=c('casual','naturalized','invasive'))
 
-ggplot(aes(x=pathway_CBD, fill=status), data=temp1) +
+pathway_CBD_long <- pathway_CBD %>%
+  pivot_longer(3:ncol(pathway_CBD), names_to='pathway', values_to='yn') %>%
+  subset(yn==1)
+
+table(pathway_CBD_long$status, pathway_CBD_long$pathway) %>% t()
+
+pathway_CBD_long$pathway <- factor(pathway_CBD_long$pathway,
+                                   levels=c(names(table(pathway_CBD_long$pathway)[order(table(pathway_CBD_long$pathway), decreasing=T)])))
+
+ggplot(aes(x=pathway, fill=status),
+       data=pathway_CBD_long[pathway_CBD_long$pathway %in% names(table(pathway_CBD_long$pathway)[1:5]),]) +
   geom_bar(position='dodge', color = "black") +
   scale_fill_manual(values = col) +
   xlab('') + ylab('Number of species') +

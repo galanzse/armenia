@@ -15,6 +15,14 @@ species_invasive <- read_excel("data/alien_flora_armenia.xlsx", sheet = "Sheet3"
   left_join(read_excel("data/wra_armenia.xlsx", sheet="WRA_scores") %>%
               dplyr::select(species, score))
 
+# categorise: score < 1 not invasive potential, score 1-6 uncertain, score > 6 invasive potential
+species_invasive$wra_category <- NA
+species_invasive$wra_category[species_invasive$score>6] <- 'reject'
+species_invasive$wra_category[species_invasive$score<1] <- 'accept'
+species_invasive$wra_category[is.na(species_invasive$wra_category)] <- 'uncertain'
+
+table(species_invasive$wra_category)
+table(species_invasive$status, species_invasive$wra_category)
 
 # score x earliest record
 ggplot(aes(y=score, x=time_appearance2), data=species_invasive) +
@@ -29,6 +37,7 @@ species_invasive$status <- factor(species_invasive$status, levels=c('casual','na
 ggplot(aes(y=score, x=status, fill=status), data=species_invasive) +
   geom_boxplot() +
   ylab('WRA score') +
+  geom_hline(yintercept=c(1,6), linetype=3) +
   theme_classic() +
   theme (axis.text.x = element_blank(), axis.title.x = element_blank(),
          axis.text.y = element_text(color = "black", size = 12),
