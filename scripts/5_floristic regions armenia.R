@@ -18,7 +18,7 @@ species_invasive$status <- factor(species_invasive$status, levels=c('casual','na
 
 # import floristic regions
 floristic_reg <- read_excel("data/alien_flora_armenia.xlsx",  sheet = "floristic regions")
-colnames(floristic_reg)[-1] <- c("Upper Akhuryan", "Shirak", "Lori", "Idjevan", "Aparan", "Sevan", "Areguni", "Yerevan", "Darelegis", "N.Zangezur", "S.Zangezur", "Meghri")
+colnames(floristic_reg)[-1] <- c("Upper Akhuryan", "Shirak", "Lori", "Ijevan", "Aparan", "Sevan", "Areguni", "Yerevan", "Darelegis", "Northern Zangezur", "Southern Zangezur", "Meghri")
 floristic_reg_long <- floristic_reg %>% pivot_longer(!species, names_to = "flor_region", values_to = "count") %>% na.omit()
 
 
@@ -47,20 +47,23 @@ ggplot(aes(x=status, y=n_flor_reg), data=species_invasive) +
 
 # FLORISTIC SIMILARITIES AMONG REGIONS
 floristic_mat <- floristic_reg
-colnames(floristic_mat)[-1] <- c("Upper Akhuryan", "Shirak", "Lori", "Idjevan", "Aparan", "Sevan", "Areguni", "Yerevan", "Darelegis", "N.Zangezur", "S.Zangezur", "Meghri") # fix names
+colnames(floristic_mat)[-1] <- c("U.Akhuryan", "Shirak", "Lori", "Ijevan", "Aparan", "Sevan", "Areguni", "Yerevan", "Darelegis", "N.Zangezur", "S.Zangezur", "Meghri") # fix names
 
 floristic_mat[is.na(floristic_mat)] <- 0 # fill NAs
 floristic_mat <- as.data.frame(floristic_mat)
-rownames(floristic_mat) <- floristic_mat$species # create matrix
+
+rownames(floristic_mat) <- paste(substr(str_split(floristic_mat$species, boundary("word"), simplify = T)[,1], 1, 2),
+                                 substr(str_split(floristic_mat$species, boundary("word"), simplify = T)[,2], 1, 5),
+                                 sep='_')
 floristic_mat$species <- NULL
 floristic_mat <- as.matrix(floristic_mat)
 
-flreg_NMDS <- metaMDS(t(floristic_mat), k=2)
+flreg_NMDS <- metaMDS(t(floristic_mat), distance="bray", k=2)
 stressplot(flreg_NMDS)
 
-ordiplot(flreg_NMDS,type="n")
-orditorp(flreg_NMDS,display="species",col="red",air=0.01)
-orditorp(flreg_NMDS,display="sites",cex=1.25,air=0.01)
+ordiplot(flreg_NMDS, type="n", main='Dissimilarity among regions')
+orditorp(flreg_NMDS, display="species", col="red", air=0.3)
+orditorp(flreg_NMDS, display="sites", cex=1.1, air=0.3)
 
 
 
@@ -84,14 +87,19 @@ for (i in 1:nrow(armenia_alluvial)) { # loop to count species in common
 # remove least frequent origin categories
 armenia_alluvial <- armenia_alluvial %>% subset(!(origin %in% c('Caucasus', 'Himalayas', 'Tropics')))
 
+armenia_alluvial$origin <- armenia_alluvial$origin %>% droplevels() %>%
+  factor(levels=c('Asia', 'East Asia', 'Eurasia', 'Europe', 'Mediterranean Basin', 'North America', 'South America'))
+
+armenia_alluvial$destiny <- armenia_alluvial$destiny %>%
+  factor(levels=c('Upper Akhuryan', 'Lori','Ijevan','Shirak', 'Aparan', 'Yerevan', 'Sevan', 'Areguni', 'Darelegis', 'Northern Zangezur', 'Southern Zangezur', 'Meghri'))
+
 ggplot(data = armenia_alluvial, aes(axis1=origin, axis2=destiny, y=freq)) +
-  geom_alluvium(aes(fill=destiny)) +
+  geom_alluvium(aes(fill=origin)) +
   geom_stratum() +
-  geom_text(stat="stratum",
-            aes(label = after_stat(stratum))) +
-  scale_x_discrete(limits = c("Native region", "Recipient floristic region")) +
+  geom_text(stat="stratum", size=3, aes(label = after_stat(stratum))) +
+  # scale_x_discrete(limits = c("Native region", "Recipient floristic region")) +
   theme_void() +
-  theme(legend.position='n')
+  theme(legend.position='n', axis.text = element_text(size = 0.5))
 
 
 
