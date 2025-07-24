@@ -49,8 +49,8 @@ g1 <- ggplot(df_cumulative, aes(x = time_appearance2, y = cumulative_count, colo
   theme (axis.text.x = element_blank(),
          axis.text.y = element_text(color = "black", size = 12),
          axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5),
-         legend.position=c(0.2, 0.75), legend.title=element_blank(),
-         plot.margin = margin(l = 55))
+         legend.position='top', legend.title=element_blank(), legend.text = element_text(size=14))
+         # plot.margin = margin(l = 55))
 
 
 
@@ -84,10 +84,10 @@ g3 <- ggplot(aes(x=time_appearance2, y=n_flor_reg, colour=status, fill=status), 
   theme (axis.text.x = element_text(color = "black", size = 12, angle = -45, hjust = .5, vjust =0.2),
          axis.text.y = element_text(color = "black", size = 12),
          axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5),
-         legend.position = 'n',
-         plot.margin = margin(l = 55))
+         legend.position = 'n')
+         # plot.margin = margin(l = 55))
 
 
-ggarrange(g1, g2, g3, nrow=3, heights=c(2,1,2), labels=c('a','b','c'))
+ggarrange(g1, g3, nrow=2, heights=c(1,1), labels=c('a','b'))
 
 

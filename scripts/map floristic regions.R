@@ -42,7 +42,7 @@ floreg_polygons2$richness <-  df_florreg$richness[order(df_florreg$region, decre
   
 
 # plot
-plot(floreg_polygons2, 'richness', col=map.pal('reds', 20), type='continuous', main='Invasive species richness')
+plot(floreg_polygons2, 'richness', col=map.pal('reds', 20), type='continuous', main='Alien species richness')
 lines(floreg_polygons2, col='black', lwd=2)
 # lines(floreg_polygons, col='orange', lwd=2)
 lines(armenia_boder, col='black', lwd=3)
