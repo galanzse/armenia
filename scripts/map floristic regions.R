@@ -39,7 +39,8 @@ floreg_raster <- rasterize(x=floreg_polygons, y=floreg_raster, fun='min', field=
 # rasterize does so by the alphabetical order of the categories, so vect and add richness
 floreg_polygons2 <- as.polygons(floreg_raster)
 floreg_polygons2$richness <-  df_florreg$richness[order(df_florreg$region, decreasing=F)]
-  
+floreg_polygons2$name <- df_florreg$region[order(df_florreg$region, decreasing=F)]
+
 
 # plot
 plot(floreg_polygons2, 'richness', col=map.pal('reds', 20), type='continuous', main='Alien species richness')

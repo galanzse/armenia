@@ -59,7 +59,7 @@ temp1 <- species_invasive[!is.na(species_invasive$pathway),]
 temp1$pathway <- factor(temp1$pathway, levels=c('Intentional','Unintentional','Self-settlement'))
 temp1$status <- factor(temp1$status, levels=c('casual','naturalized','invasive'))
 
-g2 <- ggplot(aes(x=time_appearance2, y=pathway), data=temp1) +
+ggplot(aes(x=time_appearance2, y=pathway), data=temp1) +
   geom_boxplot(position='dodge', color = "black") +
   scale_fill_manual(values = col) +
   ylab(NULL) + xlab(NULL) +

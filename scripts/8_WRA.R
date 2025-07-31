@@ -44,6 +44,8 @@ ggplot(aes(y=score, x=status, fill=status), data=species_invasive) +
          axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5),
          legend.title=element_blank(), legend.text = element_text(size=12), legend.position = 'top')
 
+anova(lm(score ~ status, data=species_invasive))
+
 
 # wra
 wra_armenia <- read_excel("data/wra_armenia.xlsx", sheet="WRA_questionnaire")
